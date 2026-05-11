@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InferLens Dashboard</title>
+  <link rel="stylesheet" href="/interface/monitor.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>InferLens Dashboard</h1>
+      <div class="sub"></div>
+    </div>
+    <div id="status" class="badge">Idle</div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div style="margin-bottom:10px; font-weight:700;">Prompt</div>
+      <textarea id="message" placeholder="Type a message to inspect the model in real time..."></textarea>
+
+      <div class="row" style="margin-top:12px;">
+        <button id="run">Run monitor</button>
+        <button id="clear" class="secondary">Clear view</button>
+        <button id="clearConversation" class="secondary">Clear conversation</button>
+        <button id="live" class="secondary">Pause live</button>
+      </div>
+
+      <div class="row" style="margin-top:10px; align-items:center;">
+        <label class="toggle">
+          <input type="checkbox" id="historyToggle" checked>
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span class="toggle-label">History</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="pclToggle">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span class="toggle-label">PCL observations</span>
+        </label>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="k">Model</div><div class="v" id="model">—</div></div>
+        <div class="stat"><div class="k">Prompt tokens</div><div class="v" id="promptTokens">0</div></div>
+        <div class="stat"><div class="k">Generated tokens</div><div class="v" id="generatedTokens">0</div></div>
+        <div class="stat"><div class="k">KV cache length</div><div class="v" id="kvLen">0</div></div>
+      </div>
+
+      <div class="prefill-wrap">
+        <div style="font-weight:700;">Prefill / Thinking</div>
+        <div class="help">What happens before the first streamed token appears.</div>
+
+        <div id="prefillTimeline" class="timeline-bar"></div>
+        <div id="prefillLegend" class="timeline-legend"></div>
+        <div class="prefill-grid" id="prefillGrid"></div>
+      </div>
+
+      <div class="slider-wrap">
+        <div class="slider-row">
+          <div class="chip">Frame <span id="framePos">0</span>/<span id="frameMax">0</span></div>
+          <input id="historySlider" type="range" min="0" max="0" value="0" step="1" />
+        </div>
+        <div class="help">Drag back and forth to inspect earlier frames. New frames continue buffering even while you are paused.</div>
+      </div>
+
+      <div style="margin:14px 0 8px; font-weight:700;">Output at selected frame</div>
+      <div id="output" class="output"></div>
+
+      <div style="margin:14px 0 8px; font-weight:700;">Selected token</div>
+      <div class="token-line">
+        <div class="chip">id: <span id="tokenId">—</span></div>
+        <div class="chip">token: <span id="tokenStr">—</span></div>
+        <div class="chip">step: <span id="step">—</span></div>
+      </div>
+
+      <div style="margin:14px 0 8px; font-weight:700;">Conversation history</div>
+      <div id="conversationHistory" class="history-wrap"></div>
+
+      <div id="pclWrap" class="pcl-wrap" style="margin-top:14px;">
+        <div style="font-weight:700;">PCL / Continual Learning</div>
+        <div class="help">Per-turn online learning metrics from PCLAdapter.</div>
+        <div id="pclStatus" class="pcl-decision">—</div>
+        <div class="prefill-grid" id="pclGrid"><div class="sub">No PCL data yet.</div></div>
+        <div id="pclActivation" class="pcl-activation"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div style="font-weight:700;">Top logits</div>
+        <div class="sub">Selected decoding step</div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Rank</th><th>Token</th><th>ID</th><th>Logit</th></tr>
+        </thead>
+        <tbody id="logitsBody"></tbody>
+      </table>
+
+      <div class="layer-timing-wrap">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+          <div style="font-weight:700;">Per-layer prefill timing</div>
+          <div class="sub">Transformer block time during the full prompt pass</div>
+        </div>
+        <div id="layerTimingChart" class="layer-timing-chart"></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:18px;">
+        <div style="font-weight:700;">Resource metrics over frames</div>
+        <div class="sub">Y axis: percent, X axis: frame index</div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-legend" id="resourceLegend"></div>
+        <svg id="resourceChart" class="chart-svg" viewBox="0 0 900 280" preserveAspectRatio="none"></svg>
+        <div class="resource-details" id="resourceDetails"></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:18px;">
+        <div style="font-weight:700;">Layer activity</div>
+        <div class="sub">Norms + top firing neurons from MLP projections</div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-legend" id="layerNormLegend"></div>
+        <svg id="layerNormChart" class="chart-svg" viewBox="0 0 900 280" preserveAspectRatio="none"></svg>
+        <div class="help">Y axis: L2 norm, X axis: layer index for the currently selected frame.</div>
+      </div>
+
+      <div id="layers" class="layers"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/interface/monitor.js"></script>
+</body>
+</html>
