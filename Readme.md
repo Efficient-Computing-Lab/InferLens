@@ -50,3 +50,11 @@ python3.12 -m pipenv run pip install -r requirements-torch.txt
 
 ## GUI
 After succesfully running GUI will be available at `http://localhost:5080`
+
+## License
+
+Copyright (C) 2026 Efficient Computing Lab - NTUA <vpsomak@mail.ntua.gr>
+
+InferLens is free software: you can redistribute it and/or modify it under the terms of the [GNU Affero General Public License](LICENSE) as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+InferLens is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
