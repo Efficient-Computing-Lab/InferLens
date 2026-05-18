@@ -1,3 +1,5 @@
+![InferLens Logo](assets/logo.png)
+
 ## Description
 InferLens is an LLM deep analysis toolbox that provides a unified interface able to measure and present various statistics and metrics during LLM inference in real time.
 
